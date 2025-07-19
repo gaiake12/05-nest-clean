@@ -1,8 +1,8 @@
 import 'dotenv/config'
 
-import { PrismaClient } from '@prisma/client'
 import { randomUUID } from 'node:crypto'
 import { execSync } from 'node:child_process'
+import { PrismaClient } from 'generated/prisma'
 
 const prisma = new PrismaClient()
 
@@ -25,7 +25,7 @@ beforeAll(async () => {
 
   process.env.DATABASE_URL = databaseURL
 
-  execSync('npm run prisma migrate deploy')
+  execSync('npx prisma migrate deploy')
 })
 
 afterAll(async () => {
