@@ -13,6 +13,7 @@ import { PrismaService } from "@/infra/database/prisma/prisma.service";
 import z from "zod";
 import { RegisterStudentUseCase } from "@/domain/forum/application/use-cases/register-student";
 import { StudentAlreadyExistsError } from "@/domain/forum/application/use-cases/error/students-already-existis-error";
+import { Public } from "@/infra/auth/public";
 
 const createAccountBodySchema = z.object({
   name: z.string().min(1),
@@ -23,6 +24,7 @@ const createAccountBodySchema = z.object({
 type CreateAccountBodySchema = z.infer<typeof createAccountBodySchema>;
 
 @Controller("/accounts")
+@Public()
 export class CreateAccountController {
   constructor(private registerStudent: RegisterStudentUseCase) {}
 
