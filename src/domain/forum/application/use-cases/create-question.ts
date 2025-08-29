@@ -2,8 +2,8 @@ import { UniqueEntityID } from "@/core/entities/unique-entity-id";
 import { Question } from "../../enterprise/entities/question";
 import { QuestionsRepository } from "../repositories/questions-repository";
 import { Either, right } from "@/core/either";
-import { QuestionAttachemnt } from "../../enterprise/entities/question-attachment";
-import { QuestionAttachemntList } from "../../enterprise/entities/question-attachement-list";
+import { QuestionAttachment } from "../../enterprise/entities/question-attachment";
+import { QuestionAttachmentList } from "../../enterprise/entities/question-attachement-list";
 import { Injectable } from "@nestjs/common";
 
 interface CreateQuestionUseCaseRequest {
@@ -37,13 +37,13 @@ export class CreateQuestionUseCase {
     });
 
     const questionAttachments = attachmentsIds.map((id) => {
-      return QuestionAttachemnt.create({
+      return QuestionAttachment.create({
         attachmentId: new UniqueEntityID(id),
         questionId: question.id,
       });
     });
 
-    question.attachments = new QuestionAttachemntList(questionAttachments);
+    question.attachments = new QuestionAttachmentList(questionAttachments);
 
     await this.questionsRepository.create(question);
 
