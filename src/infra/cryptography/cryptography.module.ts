@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 
-import { HashGenerator } from "@/domain/forum/application/cryptography/hasher-generator";
+import { HashGenerator } from "@/domain/forum/application/cryptography/hash-generator";
 import { HashComparer } from "@/domain/forum/application/cryptography/hash-comparer";
 import { Encrypter } from "@/domain/forum/application/cryptography/encrypter";
 

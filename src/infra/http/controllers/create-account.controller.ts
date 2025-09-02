@@ -1,24 +1,22 @@
 import {
-  ConflictException,
-  HttpCode,
+  BadRequestException,
   Body,
+  ConflictException,
   Controller,
+  HttpCode,
   Post,
   UsePipes,
-  BadRequestException,
 } from "@nestjs/common";
-import { hash } from "bcryptjs";
+import { z } from "zod";
 import { ZodValidationPipe } from "@/infra/http/pipes/zod-validation-pipe";
-import { PrismaService } from "@/infra/database/prisma/prisma.service";
-import z from "zod";
 import { RegisterStudentUseCase } from "@/domain/forum/application/use-cases/register-student";
-import { StudentAlreadyExistsError } from "@/domain/forum/application/use-cases/error/students-already-existis-error";
+import { StudentAlreadyExistsError } from "@/domain/forum/application/use-cases/errors/student-already-exists-error";
 import { Public } from "@/infra/auth/public";
 
 const createAccountBodySchema = z.object({
-  name: z.string().min(1),
+  name: z.string(),
   email: z.string().email(),
-  password: z.string().min(8),
+  password: z.string(),
 });
 
 type CreateAccountBodySchema = z.infer<typeof createAccountBodySchema>;
@@ -32,7 +30,7 @@ export class CreateAccountController {
   @HttpCode(201)
   @UsePipes(new ZodValidationPipe(createAccountBodySchema))
   async handle(@Body() body: CreateAccountBodySchema) {
-    const { name, email, password } = createAccountBodySchema.parse(body);
+    const { name, email, password } = body;
 
     const result = await this.registerStudent.execute({
       name,
@@ -50,9 +48,5 @@ export class CreateAccountController {
           throw new BadRequestException(error.message);
       }
     }
-
-    const { student } = result.value;
-
-    return student;
   }
 }
