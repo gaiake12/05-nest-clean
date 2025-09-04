@@ -1,12 +1,13 @@
 import { Either, left, right } from "@/core/either";
-import { Question } from "../../enterprise/entities/question";
-import { QuestionsRepository } from "../repositories/questions-repository";
 import { NotAllowedError } from "@/core/errors/errors/not-allowed-error";
 import { ResourceNotFoundError } from "@/core/errors/errors/resource-not-found-error";
-import { QuestionAttachmentsRepository } from "../repositories/quesion-attachments-repository";
-import { QuestionAttachment } from "../../enterprise/entities/question-attachment";
-import { QuestionAttachmentList } from "../../enterprise/entities/question-attachement-list";
+import { Question } from "@/domain/forum/enterprise/entities/question";
+import { QuestionsRepository } from "../repositories/questions-repository";
+import { QuestionAttachmentsRepository } from "@/domain/forum/application/repositories/question-attachments-repository";
+import { QuestionAttachmentList } from "@/domain/forum/enterprise/entities/question-attachment-list";
+import { QuestionAttachment } from "@/domain/forum/enterprise/entities/question-attachment";
 import { UniqueEntityID } from "@/core/entities/unique-entity-id";
+import { Injectable } from "@nestjs/common";
 
 interface EditQuestionUseCaseRequest {
   authorId: string;
@@ -17,12 +18,13 @@ interface EditQuestionUseCaseRequest {
 }
 
 type EditQuestionUseCaseResponse = Either<
-  NotAllowedError | ResourceNotFoundError,
+  ResourceNotFoundError | NotAllowedError,
   {
     question: Question;
   }
 >;
 
+@Injectable()
 export class EditQuestionUseCase {
   constructor(
     private questionsRepository: QuestionsRepository,
@@ -62,9 +64,9 @@ export class EditQuestionUseCase {
 
     questionAttachmentList.update(questionAttachments);
 
+    question.attachments = questionAttachmentList;
     question.title = title;
     question.content = content;
-    question.attachments = questionAttachmentList;
 
     await this.questionsRepository.save(question);
 
