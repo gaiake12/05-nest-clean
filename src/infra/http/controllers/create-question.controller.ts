@@ -1,12 +1,4 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  Post,
-  UseGuards,
-} from "@nestjs/common";
-import { JwtAuthGuard } from "@/infra/auth/jwt-auth.guard";
-import { PrismaService } from "@/infra/database/prisma/prisma.service";
+import { BadRequestException, Body, Controller, Post } from "@nestjs/common";
 import { CurrentUser } from "@/infra/auth/current-user-decorator";
 import { UserPayload } from "@/infra/auth/jwt-strategy";
 import z from "zod";
