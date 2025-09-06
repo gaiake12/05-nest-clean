@@ -9,7 +9,7 @@ import { DatabaseModule } from "@/infra/database/database.module";
 import { QuestionFactory } from "test/factories/make-question";
 import { AnswerFactory } from "test/factories/make-answer";
 
-describe("Answer question (E2E)", () => {
+describe("Comment on question (E2E)", () => {
   let app: INestApplication;
   let prisma: PrismaService;
   let studentFactory: StudentFactory;

@@ -8,19 +8,26 @@ import { StudentFactory } from "test/factories/make-student";
 import { DatabaseModule } from "@/infra/database/database.module";
 import { QuestionFactory } from "test/factories/make-question";
 import { AnswerFactory } from "test/factories/make-answer";
+import { AnswerCommentFactory } from "test/factories/make-answer-comment";
 
-describe("Comment on answer (E2E)", () => {
+describe("Delete answer comment (E2E)", () => {
   let app: INestApplication;
   let prisma: PrismaService;
   let studentFactory: StudentFactory;
   let questionFactory: QuestionFactory;
   let answerFactory: AnswerFactory;
+  let answerCommentFactory: AnswerCommentFactory;
   let jwt: JwtService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule, DatabaseModule],
-      providers: [StudentFactory, QuestionFactory, AnswerFactory],
+      providers: [
+        StudentFactory,
+        QuestionFactory,
+        AnswerFactory,
+        AnswerCommentFactory,
+      ],
     }).compile();
 
     app = moduleRef.createNestApplication();
@@ -29,19 +36,19 @@ describe("Comment on answer (E2E)", () => {
     prisma = moduleRef.get(PrismaService);
     questionFactory = moduleRef.get(QuestionFactory);
     answerFactory = moduleRef.get(AnswerFactory);
+    answerCommentFactory = moduleRef.get(AnswerCommentFactory);
     jwt = moduleRef.get(JwtService);
 
     await app.init();
   });
 
-  test("[POST] /answers/:answerId/comments", async () => {
+  test("[DELETE] /answers/comments/:answerCommentId", async () => {
     const user = await studentFactory.makePrismaStudent();
     const accessToken = jwt.sign({ sub: user.id.toString() });
 
     const question = await questionFactory.makePrismaQuestion({
       authorId: user.id,
     });
-    const questionId = question.id.toString();
 
     const answer = await answerFactory.makePrismaAnswer({
       questionId: question.id,
@@ -49,16 +56,20 @@ describe("Comment on answer (E2E)", () => {
       content: "Answer Content",
     });
 
-    const answerId = answer.id.toString();
+    const answerComment = await answerCommentFactory.makePrismaAnswerComment({
+      answerId: answer.id,
+      authorId: user.id,
+      content: "Comment Content",
+    });
+
+    const answerCommentId = answerComment.id.toString();
 
     const response = await request(app.getHttpServer())
-      .post(`/answers/${answerId}/comments`)
+      .delete(`/answers/comments/${answerCommentId}`)
       .set("Authorization", `Bearer ${accessToken}`)
-      .send({
-        content: "Comment Content",
-      });
+      .send();
 
-    expect(response.statusCode).toBe(201);
+    expect(response.statusCode).toBe(204);
 
     const commentOnDatabase = await prisma.comment.findFirst({
       where: {
@@ -66,6 +77,6 @@ describe("Comment on answer (E2E)", () => {
       },
     });
 
-    expect(commentOnDatabase).toBeTruthy();
+    expect(commentOnDatabase).toBeNull();
   });
 });
