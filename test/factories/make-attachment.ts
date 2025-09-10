@@ -22,11 +22,8 @@ export function makeAttachment(
 export class AttachmentFactory {
   constructor(private readonly prisma: PrismaService) {}
 
-  async makePrismaAttachment(
-    override: Partial<AttachmentProps> = {},
-    id?: UniqueEntityID
-  ) {
-    const attachment = makeAttachment(override, id);
+  async makePrismaAttachment(override: Partial<AttachmentProps> = {}) {
+    const attachment = makeAttachment(override);
 
     await this.prisma.attachment.create({
       data: PrismaAttachmentMapper.toPrisma(attachment),
