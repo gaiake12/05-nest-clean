@@ -59,3 +59,4 @@ data
 /generated/prisma
 
 .env
+.env.test
