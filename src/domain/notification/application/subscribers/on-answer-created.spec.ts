@@ -1,64 +1,72 @@
-import { makeAnswer } from 'test/factories/make-answer'
-import { OnAnswerCreated } from './on-answer-created'
-import { InMemoryAnswersRepository } from 'test/repositories/in-memory-answers-repository'
-import { InMemoryAnswerAttachmentsRepository } from 'test/repositories/in-memory-answer-attachments-repository'
-import { InMemoryQuestionsRepository } from 'test/repositories/in-memory-questions-repository'
+import { makeAnswer } from "test/factories/make-answer";
+import { OnAnswerCreated } from "./on-answer-created";
+import { InMemoryAnswersRepository } from "test/repositories/in-memory-answers-repository";
+import { InMemoryAnswerAttachmentsRepository } from "test/repositories/in-memory-answer-attachments-repository";
+import { InMemoryQuestionsRepository } from "test/repositories/in-memory-questions-repository";
 import {
   SendNotificationUseCase,
   SendNotificationUseCaseRequest,
   SendNotificationUseCaseResponse,
-} from '../use-cases/send-notification'
-import { InMemoryQuestionAttachmentsRepository } from 'test/repositories/in-memory-question-attachments-repository'
-import { InMemoryNotificationsRepository } from 'test/repositories/in-memory-notifications-repository'
-import { makeQuestion } from 'test/factories/make-question'
-import { MockInstance } from 'vitest'
-import { waitFor } from 'test/utils/wait-for'
+} from "../use-cases/send-notification";
+import { InMemoryQuestionAttachmentsRepository } from "test/repositories/in-memory-question-attachments-repository";
+import { InMemoryNotificationsRepository } from "test/repositories/in-memory-notifications-repository";
+import { makeQuestion } from "test/factories/make-question";
+import { MockInstance } from "vitest";
+import { waitFor } from "test/utils/wait-for";
+import { InMemoryStudentsRepository } from "test/repositories/in-memory-students-repository";
+import { InMemoryAttachmentsRepository } from "test/repositories/in-memory-attachments-repository";
 
-let inMemoryAnswersRepository: InMemoryAnswersRepository
-let inMemoryAnswerAttachmentsRepository: InMemoryAnswerAttachmentsRepository
-let inMemoryQuestionAttachmentsRepository: InMemoryQuestionAttachmentsRepository
-let inMemoryQuestionsRepository: InMemoryQuestionsRepository
-let sendNotificationUseCase: SendNotificationUseCase
-let inMemoryNotificationsRepository: InMemoryNotificationsRepository
+let inMemoryAnswersRepository: InMemoryAnswersRepository;
+let inMemoryAnswerAttachmentsRepository: InMemoryAnswerAttachmentsRepository;
+let inMemoryQuestionAttachmentsRepository: InMemoryQuestionAttachmentsRepository;
+let inMemoryQuestionsRepository: InMemoryQuestionsRepository;
+let sendNotificationUseCase: SendNotificationUseCase;
+let inMemoryNotificationsRepository: InMemoryNotificationsRepository;
+let inMemoryStudentsRepository: InMemoryStudentsRepository;
+let inMemoryAttachmentsRepository: InMemoryAttachmentsRepository;
 
 let sendNotificationExecuteSpy: MockInstance<
   (
-    props: SendNotificationUseCaseRequest,
+    props: SendNotificationUseCaseRequest
   ) => Promise<SendNotificationUseCaseResponse>
->
+>;
 
-describe('On Answer Created', () => {
+describe("On Answer Created", () => {
   beforeEach(() => {
+    inMemoryStudentsRepository = new InMemoryStudentsRepository();
+    inMemoryAttachmentsRepository = new InMemoryAttachmentsRepository();
     inMemoryQuestionAttachmentsRepository =
-      new InMemoryQuestionAttachmentsRepository()
+      new InMemoryQuestionAttachmentsRepository();
     inMemoryQuestionsRepository = new InMemoryQuestionsRepository(
       inMemoryQuestionAttachmentsRepository,
-    )
+      inMemoryStudentsRepository,
+      inMemoryAttachmentsRepository
+    );
 
     inMemoryAnswerAttachmentsRepository =
-      new InMemoryAnswerAttachmentsRepository()
+      new InMemoryAnswerAttachmentsRepository();
     inMemoryAnswersRepository = new InMemoryAnswersRepository(
-      inMemoryAnswerAttachmentsRepository,
-    )
-    inMemoryNotificationsRepository = new InMemoryNotificationsRepository()
+      inMemoryAnswerAttachmentsRepository
+    );
+    inMemoryNotificationsRepository = new InMemoryNotificationsRepository();
     sendNotificationUseCase = new SendNotificationUseCase(
-      inMemoryNotificationsRepository,
-    )
+      inMemoryNotificationsRepository
+    );
 
-    sendNotificationExecuteSpy = vi.spyOn(sendNotificationUseCase, 'execute')
+    sendNotificationExecuteSpy = vi.spyOn(sendNotificationUseCase, "execute");
 
-    new OnAnswerCreated(inMemoryQuestionsRepository, sendNotificationUseCase)
-  })
+    new OnAnswerCreated(inMemoryQuestionsRepository, sendNotificationUseCase);
+  });
 
-  it('should be able to send a notification when an answer is created', async () => {
-    const question = makeQuestion()
-    const answer = makeAnswer({ questionId: question.id })
+  it("should be able to send a notification when an answer is created", async () => {
+    const question = makeQuestion();
+    const answer = makeAnswer({ questionId: question.id });
 
-    await inMemoryQuestionsRepository.create(question)
-    await inMemoryAnswersRepository.create(answer)
+    await inMemoryQuestionsRepository.create(question);
+    await inMemoryAnswersRepository.create(answer);
 
     await waitFor(() => {
-      expect(sendNotificationExecuteSpy).toHaveBeenCalled()
-    })
-  })
-})
+      expect(sendNotificationExecuteSpy).toHaveBeenCalled();
+    });
+  });
+});

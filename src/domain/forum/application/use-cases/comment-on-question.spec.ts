@@ -1,43 +1,51 @@
-import { InMemoryQuestionCommentsRepository } from 'test/repositories/in-memory-question-comments-repository'
-import { InMemoryQuestionsRepository } from 'test/repositories/in-memory-questions-repository'
-import { CommentOnQuestionUseCase } from './comment-on-question'
-import { makeQuestion } from 'test/factories/make-question'
-import { UniqueEntityID } from '@/core/entities/unique-entity-id'
-import { InMemoryQuestionAttachmentsRepository } from 'test/repositories/in-memory-question-attachments-repository'
+import { InMemoryQuestionCommentsRepository } from "test/repositories/in-memory-question-comments-repository";
+import { InMemoryQuestionsRepository } from "test/repositories/in-memory-questions-repository";
+import { CommentOnQuestionUseCase } from "./comment-on-question";
+import { makeQuestion } from "test/factories/make-question";
+import { UniqueEntityID } from "@/core/entities/unique-entity-id";
+import { InMemoryQuestionAttachmentsRepository } from "test/repositories/in-memory-question-attachments-repository";
+import { InMemoryStudentsRepository } from "test/repositories/in-memory-students-repository";
+import { InMemoryAttachmentsRepository } from "test/repositories/in-memory-attachments-repository";
 
-let inMemoryQuestionsRepository: InMemoryQuestionsRepository
-let inMemoryQuestionCommentsRepository: InMemoryQuestionCommentsRepository
-let inMemoryQuestionAttachmentsRepository: InMemoryQuestionAttachmentsRepository
-let sut: CommentOnQuestionUseCase
-
-describe('Comment on Question', () => {
+let inMemoryQuestionsRepository: InMemoryQuestionsRepository;
+let inMemoryQuestionCommentsRepository: InMemoryQuestionCommentsRepository;
+let inMemoryQuestionAttachmentsRepository: InMemoryQuestionAttachmentsRepository;
+let sut: CommentOnQuestionUseCase;
+let inMemoryStudentsRepository: InMemoryStudentsRepository;
+let inMemoryAttachmentsRepository: InMemoryAttachmentsRepository;
+describe("Comment on Question", () => {
   beforeEach(() => {
+    inMemoryStudentsRepository = new InMemoryStudentsRepository();
+    inMemoryAttachmentsRepository = new InMemoryAttachmentsRepository();
     inMemoryQuestionAttachmentsRepository =
-      new InMemoryQuestionAttachmentsRepository()
+      new InMemoryQuestionAttachmentsRepository();
     inMemoryQuestionsRepository = new InMemoryQuestionsRepository(
       inMemoryQuestionAttachmentsRepository,
-    )
-    inMemoryQuestionCommentsRepository =
-      new InMemoryQuestionCommentsRepository()
+      inMemoryStudentsRepository,
+      inMemoryAttachmentsRepository
+    );
+    inMemoryQuestionCommentsRepository = new InMemoryQuestionCommentsRepository(
+      inMemoryStudentsRepository
+    );
     sut = new CommentOnQuestionUseCase(
       inMemoryQuestionsRepository,
-      inMemoryQuestionCommentsRepository,
-    )
-  })
+      inMemoryQuestionCommentsRepository
+    );
+  });
 
-  it('should be able to comment on a question', async () => {
-    const question = makeQuestion({}, new UniqueEntityID('question-1'))
+  it("should be able to comment on a question", async () => {
+    const question = makeQuestion({}, new UniqueEntityID("question-1"));
 
-    await inMemoryQuestionsRepository.create(question)
+    await inMemoryQuestionsRepository.create(question);
 
     await sut.execute({
-      authorId: 'author-2',
-      questionId: 'question-1',
-      content: 'comment content',
-    })
+      authorId: "author-2",
+      questionId: "question-1",
+      content: "comment content",
+    });
 
     expect(inMemoryQuestionCommentsRepository.items[0].content).toEqual(
-      'comment content',
-    )
-  })
-})
+      "comment content"
+    );
+  });
+});
