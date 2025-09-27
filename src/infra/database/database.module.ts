@@ -69,6 +69,7 @@ import { NotificationsRepository } from "@/domain/notification/application/repos
     AnswerCommentsRepository,
     AnswerAttachmentsRepository,
     AttachmentsRepository,
+    NotificationsRepository,
   ],
 })
 export class DatabaseModule {}
